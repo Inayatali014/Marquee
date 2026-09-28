@@ -53,38 +53,35 @@
 
         }
         .player{
-            height: 60px;
-            width: 49px;
+            height: 120px;
+            width: 70px;
             left: 40px;
             bottom: 67px;
-            background-repeat: no-repeat;
-            background: url("assets/goku_run_transparent.gif");
             position: absolute;
+            background-repeat: no-repeat;
+            background-position: bottom center;
             background-size:contain;
+            background-image: url("assets/goku_idle_v2.gif");
             /* background-size: auto; */
 
         }
         .cloud{
             width: 100px;
             height: 60px;
-            border-radius: 50px;
-            background: white;
             position: absolute;
         }
         .cloud1{
-            top: 40px;
-            left: 150px;
+            top: 60px;
+            left: 270px;
         }
         .cloud2{
-            top:155px;
-            left: 600px;
+            top : 125px;
+            left : 600px;
         }
 
         .question{
             width: 50px;
             height: 50px;
-            background: gold;
-            border: 3px solid red;
 
             display: flex;
             justify-content: center;
@@ -94,18 +91,18 @@
             font-weight: bold;
 
             position: absolute;
-            top:180px;
+            top:200px;
 
         }
         .q1{
-            left: 1300px;
+            left: 100px;
 
         }
         .q2{
-            left: 1360px;
+            left: 560px;
         }
         .q3{
-            left: 1400px;
+            left: 870px;
         }
 
         .brick{
@@ -117,7 +114,7 @@
             position: absolute;
         }
         .b1{
-            left: 200px;
+            left: 390px;
         }
         .b2{
             left: 750px;
@@ -142,13 +139,13 @@
     <div class="game">
         <div class="world">
             <!-- Clouds -->
-             <div class="cloud cloud1"></div>
-             <div class="cloud cloud2"></div>
+             <div class="cloud cloud1"><img src="assets/nimbus_cloud.gif" alt="nimbus" height="60px" width="90px"></div>
+             <div class="cloud cloud2"><img src="assets/nimbus_cloud.gif" alt="nimbus" height="60px" width="90px"></div>
 
              <!-- Blocks -->
-              <div class="question q1"></div>
-              <div class="question q2"></div>
-              <div class="question q3"></div>
+              <div class="question q1"><img src="assets/dragonball_4star.gif" alt="powerup" height="60px" width="60px"></div>
+              <div class="question q2"><img src="assets/dragonball_4star.gif" alt="powerup" height="60px" width="60px"></div>
+              <div class="question q3"><img src="assets/dragonball_4star.gif" alt="powerup" height="60px" width="60px"></div>
 
               <!-- Brick -->
               <div class="brick b1"></div>
@@ -169,43 +166,79 @@
          <div class="ground"></div>
     </div>
     <script>
-        const game = document.querySelector(".game")
-        const world = document.querySelector(".world")
-        const player = document.querySelector(".player")
+        const game = document.querySelector(".game");
+        const world = document.querySelector(".world");
+        const player = document.querySelector(".player");
 
         let playerX = 50;
         let playerY = 67;
 
         let velocity = 0;
-        let gravity = 0.8
-        
+        let gravity = 0.9;
+
         let isJumping = false;
-        
-        function gameLoop(){
-            velocity -= gravity
-            playerY += velocity
+        let moveLeft = false;
+        let moveRight = false;
 
-            player.style.left = `${playerX}px`
-            requestAnimationFrame(gameLoop)
+        function gameLoop() {
+            if (moveRight) playerX += 8;
+            if (moveLeft) playerX -= 8;
+
+            velocity -= gravity;
+            playerY += velocity;
+
+            if (playerY <= 67) {
+                playerY = 67;
+                velocity = 0;
+
+                if (isJumping) {
+                    isJumping = false;
+                    player.style.backgroundImage = (moveLeft || moveRight) 
+                        ? 'url("assets/goku_run_transparent.gif")' 
+                        : 'url("assets/goku_idle_v2.gif")';
+                }
+            }
+
+            player.style.left = `${playerX}px`;
+            player.style.bottom = `${playerY}px`;
+
+            requestAnimationFrame(gameLoop);
         }
-        window.addEventListener("keydown", function(e){
-            
-            if(e.key === 'ArrowRight'){
-                playerX += 15;
+
+        window.addEventListener("keydown", function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'd') {
+                moveRight = true;
                 player.style.rotate = "none";
-            }
-            
-            if(e.key === 'ArrowLeft'){
-                playerX -= 15
-                player.style.rotate = "y 180deg";
+                if (!isJumping) {
+                    player.style.backgroundImage = 'url("assets/goku_run_transparent.gif")';
+                }
             }
 
-            if((e.key === "space" || e.key === "ArrowUp" || e.key === "w") && !isJumping){
-                velocity = 15
-                isJumping = true
+            if (e.key === 'ArrowLeft' || e.key === 'a') {
+                moveLeft = true;
+                player.style.rotate = "y 180deg";
+                if (!isJumping) {
+                    player.style.backgroundImage = 'url("assets/goku_run_transparent.gif")';
+                }
             }
-        })
-        gameLoop()
+
+            if ((e.key === " " || e.key === "ArrowUp" || e.key === "w") && !isJumping) {
+                velocity = 18;
+                isJumping = true;
+                player.style.backgroundImage = `url("assets/goku_jump_punch.gif")`;
+            }
+        });
+
+        window.addEventListener("keyup", function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'd') moveRight = false;
+            if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft = false;
+
+            if (!moveLeft && !moveRight && !isJumping) {
+                player.style.backgroundImage = 'url("assets/goku_idle_v2.gif")';
+            }
+        });
+
+        gameLoop();
     </script>
 </body>
 </html>
